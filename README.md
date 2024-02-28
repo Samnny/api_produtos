@@ -80,3 +80,13 @@ Boa sorte! :)
 
 ## Suas Respostas, Duvidas e Observações
 [Adicione  aqui suas respostas, dúvidas e observações]
+### Filtros
+- Params: active = 1 (ativo); active = 0 (inativo)
+- Params: category (colocar o nome da categoria)
+- Params: order = desc (mais recente para mais antigo); order = asc (mais antigo para mais recente)
+
+### Relátorio
+- Apenas modifiquei para que a coluna de log mostre em forma de table
+
+### Logs
+- Coloquei em todos os produtos uma coluna a mais que mostre quando foi a última alteração no preço do produto (Nome do usuário, Tipo de alteração (Coluna alterada), Data)
