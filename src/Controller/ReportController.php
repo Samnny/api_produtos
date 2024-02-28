@@ -44,12 +44,18 @@ class ReportController
             $stm = $this->productService->getLog($product->id);
             $productLogs = $stm->fetchAll();
 
-            $formattedLogs = '';
+            $formattedLogs = '<table>';
             $lastModification = '';
 
             foreach ($productLogs as $log) {
-                $formattedLogs .= '(' . $log->name . ', ' . $log->action . ', ' . $log->timestamp . '), '; 
+                $formattedLogs .= '<tr>';
+                $formattedLogs .= '<td>' . $log->name . '</td>';
+                $formattedLogs .= '<td>' . $log->action . '</td>';
+                $formattedLogs .= '<td>' . $log->timestamp . '</td>';
+                $formattedLogs .= '</tr>';
             }
+            $formattedLogs .= '</table>';
+        
             $formattedLogs = rtrim($formattedLogs, ', ');
 
             $updateLogs = array_filter($productLogs, function($log) {
