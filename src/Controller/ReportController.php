@@ -30,7 +30,8 @@ class ReportController
             'Valor do Produto',
             'Categorias do Produto',
             'Data de Criação',
-            'Logs de Alterações'
+            'Logs de Alterações',
+            'Última Alteração'
         ];
         
         $stm = $this->productService->getAll($adminUserId);
@@ -42,14 +43,42 @@ class ReportController
 
             $stm = $this->productService->getLog($product->id);
             $productLogs = $stm->fetchAll();
+
+            $formattedLogs = '';
+            $lastModification = '';
+
+            $updateLogs = array_filter($productLogs, function($log) {
+                return $log->action === 'update';
+            });
+
+            usort($updateLogs, function($a, $b) {
+                return strtotime($b->created_at) - strtotime($a->created_at);
+            });
+
             
+            foreach ($productLogs as $log) {
+                $formattedLogs .= '(' . $log->name . ', ' . $log->action . ', ' . date('d/m/Y H:i:s', strtotime($log->created_at)) . '), '; 
+            }
+            $formattedLogs = rtrim($formattedLogs, ', ');
+
+            $lastUpdateLog = reset($updateLogs);
+            if ($lastUpdateLog) {
+                $modifications = json_decode($lastUpdateLog->modifications, true);
+                $modifiedFields = [];
+                foreach ($modifications as $field => $value) {
+                    $modifiedFields[] = "$field: $value";
+                }
+                $modifiedFieldsInfo = implode(', ', $modifiedFields);
+                $lastModification = '(' . $lastUpdateLog->name . ', ' . $lastUpdateLog->action . ', ' . date('d/m/Y H:i:s', strtotime($lastUpdateLog->created_at)) . ', ' . $modifiedFieldsInfo . ')';
+            }  
             $data[$i+1][] = $product->id;
             $data[$i+1][] = $companyName;
             $data[$i+1][] = $product->title;
             $data[$i+1][] = $product->price;
             $data[$i+1][] = $product->category;
             $data[$i+1][] = $product->created_at;
-            $data[$i+1][] = $productLogs;
+            $data[$i+1][] = $formattedLogs;
+            $data[$i+1][] = $lastModification;
         }
         
         $report = "<table style='font-size: 10px;'>";

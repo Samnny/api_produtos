@@ -47,11 +47,11 @@ class CategoryService
     public function getProductCategory($productId)
     {
         $query = "
-            SELECT c.id
-            FROM category c
-            INNER JOIN product_category pc
-                ON pc.cat_id = c.id
-            WHERE pc.product_id = {$productId}
+            SELECT c.title as category
+            FROM product p
+            INNER JOIN product_category pc ON pc.product_id = p.id
+            INNER JOIN category c ON c.id = pc.cat_id
+            WHERE p.id = {$productId}
         ";
 
         $stm = $this->pdo->prepare($query);

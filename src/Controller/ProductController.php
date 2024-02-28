@@ -34,9 +34,13 @@ class ProductController
         $product = Product::hydrateByFetch($stm->fetch());
 
         $adminUserId = $request->getHeader('admin_user_id')[0];
-        $productCategory = $this->categoryService->getProductCategory($product->id)->fetch();
-        $fetchedCategory = $this->categoryService->getOne($adminUserId, $productCategory->id)->fetch();
-        $product->setCategory($fetchedCategory->title);
+        $productCategories = [];
+        $productCategory = $this->categoryService->getProductCategory($product->id);
+        
+        while ($row = $productCategory->fetch()) {
+            $productCategories[] = $row->category; 
+        }
+        $product->setCategory($productCategories); 
 
         $response->getBody()->write(json_encode($product));
         return $response->withStatus(200);

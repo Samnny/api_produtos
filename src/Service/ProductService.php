@@ -13,19 +13,44 @@ class ProductService
     }
 
     public function getAll($adminUserId)
-    {
+    {   
         $query = "
             SELECT p.*, c.title as category
             FROM product p
             INNER JOIN product_category pc ON pc.product_id = p.id
-            INNER JOIN category c ON c.id = pc.id
-            WHERE p.company_id = {$adminUserId}
+            INNER JOIN category c ON c.id = pc.cat_id
+            WHERE p.company_id = {$adminUserId} 
         ";
-
+        
+        if (isset($_GET['active'])) {
+            $active = $_GET['active'];
+            $query .= " 
+                AND p.active = :active 
+            ";            
+        }
+        if (isset($_GET['category'])) {
+            $category = $_GET['category'];
+            $query .= " 
+                AND category = :category 
+            ";            
+        }
+        if (isset($_GET['order'])) {
+            $order = $_GET['order'];
+            if ($order === 'asc' || $order === 'desc') {
+                $query .= " ORDER BY p.created_at $order";
+            }         
+        }
+        
         $stm = $this->pdo->prepare($query);
 
+        if (isset($_GET['active'])) {
+            $stm->bindParam(':active', $active);
+        }
+        if (isset($_GET['category'])) {
+            $stm->bindParam(':category', $category);
+        }
+       
         $stm->execute();
-
         return $stm;
     }
 
@@ -154,8 +179,9 @@ class ProductService
     public function getLog($id)
     {
         $stm = $this->pdo->prepare("
-            SELECT *
-            FROM product_log
+            SELECT pl.*, a.name 
+            FROM product_log pl
+            INNER JOIN admin_user a ON pl.admin_user_id = a.id
             WHERE product_id = {$id}
         ");
         $stm->execute();
