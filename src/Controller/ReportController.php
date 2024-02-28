@@ -47,30 +47,24 @@ class ReportController
             $formattedLogs = '';
             $lastModification = '';
 
-            $updateLogs = array_filter($productLogs, function($log) {
-                return $log->action === 'update';
-            });
-
-            usort($updateLogs, function($a, $b) {
-                return strtotime($b->created_at) - strtotime($a->created_at);
-            });
-
-            
             foreach ($productLogs as $log) {
-                $formattedLogs .= '(' . $log->name . ', ' . $log->action . ', ' . date('d/m/Y H:i:s', strtotime($log->created_at)) . '), '; 
+                $formattedLogs .= '(' . $log->name . ', ' . $log->action . ', ' . $log->timestamp . '), '; 
             }
             $formattedLogs = rtrim($formattedLogs, ', ');
 
+            $updateLogs = array_filter($productLogs, function($log) {
+                return strpos($log->action, 'update') !== false;
+            });
+
+            usort($updateLogs, function($a, $b) {
+                return strtotime($b->timestamp) - strtotime($a->timestamp);
+            });
+
             $lastUpdateLog = reset($updateLogs);
             if ($lastUpdateLog) {
-                $modifications = json_decode($lastUpdateLog->modifications, true);
-                $modifiedFields = [];
-                foreach ($modifications as $field => $value) {
-                    $modifiedFields[] = "$field: $value";
-                }
-                $modifiedFieldsInfo = implode(', ', $modifiedFields);
-                $lastModification = '(' . $lastUpdateLog->name . ', ' . $lastUpdateLog->action . ', ' . date('d/m/Y H:i:s', strtotime($lastUpdateLog->created_at)) . ', ' . $modifiedFieldsInfo . ')';
-            }  
+                $lastModification = '(' . $lastUpdateLog->name . ', ' . $lastUpdateLog->action . ', ' . $lastUpdateLog->timestamp . ')';
+            }
+
             $data[$i+1][] = $product->id;
             $data[$i+1][] = $companyName;
             $data[$i+1][] = $product->title;

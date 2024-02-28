@@ -114,7 +114,25 @@ class ProductService
     }
 
     public function updateOne($id, $body, $adminUserId)
-    {
+    {   
+
+        $stm = $this->pdo->prepare("SELECT price FROM product WHERE id = :id");
+        $stm->bindParam(':id', $id);
+        $stm->execute();
+        $currentValues = $stm->fetch();
+
+        $currentPrice = $currentValues->price;
+
+        $action = 'update';
+        $changes = '';
+            
+        if ($body->price != $currentPrice) {
+            $changes .= 'price, ';
+        }
+            
+            
+        $changes = rtrim($changes, ', ');
+
         $stm = $this->pdo->prepare("
             UPDATE product
             SET company_id = {$body['company_id']},
@@ -134,19 +152,29 @@ class ProductService
         if (!$stm->execute())
             return false;
 
+        
+            
         $stm = $this->pdo->prepare("
             INSERT INTO product_log (
                 product_id,
                 admin_user_id,
                 `action`
             ) VALUES (
-                {$id},
-                {$adminUserId},
-                'update'
+                :product_id,
+                :admin_user_id,
+                :action
             )
         ");
 
-        return $stm->execute();
+        if (!$stm->execute(array(
+            ':product_id' => $id,
+            ':admin_user_id' => $adminUserId,
+            ':action' => $action . ' (' . $changes . ')'
+        ))) {
+            return false;
+        }
+
+        //return $stm->execute();
     }
 
     public function deleteOne($id, $adminUserId)
