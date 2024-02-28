@@ -86,7 +86,7 @@ Boa sorte! :)
 - Params: order = desc (mais recente para mais antigo); order = asc (mais antigo para mais recente)
 
 ### Relátorio
-- Apenas modifiquei para que a coluna de log mostre em forma de table
+- Apenas modifiquei para que a coluna de log mostre em forma de table, e no log de alteração, é sinalizado quando modificado o preço do produto
 
 ### Logs
-- Coloquei em todos os produtos uma coluna a mais que mostre quando foi a última alteração no preço do produto (Nome do usuário, Tipo de alteração (Coluna alterada), Data)
+- Coloquei em todos os produtos uma coluna a mais que mostre quando foi a última alteração no preço do produto (Nome do usuário, Tipo de alteração (Coluna = price), Data)
